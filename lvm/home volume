@@ -17,7 +17,6 @@ sde                       8:64   0    1G  0 disk
   /run/lock/lvm/P_orphans:aux: open failed: Permission denied
   Can't get lock for orphan PVs.
 [vagrant@lvm ~]$ sudo -s
-[root@lvm vagrant]# clear
 
 [root@lvm vagrant]# pvcreate /dev/sdc
   Physical volume "/dev/sdc" successfully created.
