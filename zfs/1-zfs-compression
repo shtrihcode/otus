@@ -1,0 +1,108 @@
+[vagrant@zfs ~]$ sudo -i
+[root@zfs ~]# lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   40G  0 disk 
+`-sda1   8:1    0   40G  0 part /
+sdb      8:16   0  512M  0 disk 
+sdc      8:32   0  512M  0 disk 
+sdd      8:48   0  512M  0 disk 
+sde      8:64   0  512M  0 disk 
+sdf      8:80   0  512M  0 disk 
+sdg      8:96   0  512M  0 disk 
+sdh      8:112  0  512M  0 disk 
+sdi      8:128  0  512M  0 disk 
+[root@zfs ~]# zpool create otus1 mirror /dev/sdb /dev/sdc
+[root@zfs ~]# zpool create otus2 mirror /dev/sdd /dev/sde
+[root@zfs ~]# zpool create otus3 mirror /dev/sdf /dev/sdg
+[root@zfs ~]# zpool create otus4 mirror /dev/sdh /dev/sdi
+[root@zfs ~]# zpool list
+NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+otus1   480M   106K   480M        -         -     0%     0%  1.00x    ONLINE  -
+otus2   480M   106K   480M        -         -     0%     0%  1.00x    ONLINE  -
+otus3   480M   106K   480M        -         -     0%     0%  1.00x    ONLINE  -
+otus4   480M  91.5K   480M        -         -     0%     0%  1.00x    ONLINE  -
+[root@zfs ~]# zfs set compression=lzjb otus1
+[root@zfs ~]# zfs set compression=lz4 otus2
+[root@zfs ~]# zfs set compression=gzip-9 otus3
+[root@zfs ~]# zfs set compression=zle otus4
+[root@zfs ~]# zfs get all | grep compression
+otus1  compression           lzjb                   local
+otus2  compression           lz4                    local
+otus3  compression           gzip-9                 local
+otus4  compression           zle                    local
+[root@zfs ~]# for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log; done
+--2023-07-24 12:06:14--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus1/pg2600.converter.log'
+
+100%[=============================================================================================================================>] 40,950,803  3.74MB/s   in 11s    
+
+2023-07-24 12:06:26 (3.45 MB/s) - '/otus1/pg2600.converter.log' saved [40950803/40950803]
+
+--2023-07-24 12:06:26--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus2/pg2600.converter.log'
+
+100%[=============================================================================================================================>] 40,950,803  3.49MB/s   in 17s    
+
+2023-07-24 12:06:43 (2.32 MB/s) - '/otus2/pg2600.converter.log' saved [40950803/40950803]
+
+--2023-07-24 12:06:43--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus3/pg2600.converter.log'
+
+100%[=============================================================================================================================>] 40,950,803  2.15MB/s   in 20s    
+
+2023-07-24 12:07:04 (1.96 MB/s) - '/otus3/pg2600.converter.log' saved [40950803/40950803]
+
+--2023-07-24 12:07:04--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus4/pg2600.converter.log'
+
+100%[=============================================================================================================================>] 40,950,803  4.71MB/s   in 10s    
+
+2023-07-24 12:07:15 (3.78 MB/s) - '/otus4/pg2600.converter.log' saved [40950803/40950803]
+
+[root@zfs ~]# ls -l /otus*
+/otus1:
+total 22052
+-rw-r--r--. 1 root root 40950803 Jul  2 08:17 pg2600.converter.log
+
+/otus2:
+total 17987
+-rw-r--r--. 1 root root 40950803 Jul  2 08:17 pg2600.converter.log
+
+/otus3:
+total 10956
+-rw-r--r--. 1 root root 40950803 Jul  2 08:17 pg2600.converter.log
+
+/otus4:
+total 40019
+-rw-r--r--. 1 root root 40950803 Jul  2 08:17 pg2600.converter.log
+[root@zfs ~]# zfs list
+NAME    USED  AVAIL     REFER  MOUNTPOINT
+otus1  21.6M   330M     21.6M  /otus1
+otus2  17.7M   334M     17.6M  /otus2
+otus3  10.8M   341M     10.7M  /otus3
+otus4  39.2M   313M     39.1M  /otus4
+[root@zfs ~]# zfs get all | grep compressratio | grep -v ref
+otus1  compressratio         1.81x                  -
+otus2  compressratio         2.22x                  -
+otus3  compressratio         3.65x                  -
+otus4  compressratio         1.00x                  -
+
+
+
+# алгоритм gzip-9 самый эффективный по сжатию
