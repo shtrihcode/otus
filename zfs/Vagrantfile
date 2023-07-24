@@ -1,7 +1,6 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
-disk_controller = 'IDE' # MacOS. This setting is OS dependent. Details
-https://github.com/hashicorp/vagrant/issues/8105
+disk_controller = 'IDE' # MacOS. This setting is OS dependent. Details https://github.com/hashicorp/vagrant/issues/8105
 MACHINES = {
 :zfs => {
 :box_name => "centos/7",
@@ -61,25 +60,21 @@ vb.customize ["modifyvm", :id, "--memory", "1024"]
 needsController = false
 boxconfig[:disks].each do |dname, dconf|
 unless File.exist?(dconf[:dfile])
-vb.customize ['createhd', '--filename', dconf[:dfile],
-'--variant', 'Fixed', '--size', dconf[:size]]
+vb.customize ['createhd', '--filename', dconf[:dfile], '--variant', 'Fixed', '--size', dconf[:size]]
 needsController = true
 end
 end
 if needsController == true
-vb.customize ["storagectl", :id, "--name", "SATA",
-"--add", "sata" ]
+vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata" ]
 boxconfig[:disks].each do |dname, dconf|
 vb.customize ['storageattach', :id, '--storagectl',
-'SATA', '--port', dconf[:port], '--device', 0, '--type', 'hdd',
-'--medium', dconf[:dfile]]
+'SATA', '--port', dconf[:port], '--device', 0, '--type', 'hdd', '--medium', dconf[:dfile]]
 end
 end
 end
 box.vm.provision "shell", inline: <<-SHELL
 #install zfs repo
-yum install -y
-http://download.zfsonlinux.org/epel/zfs-release.el7_8.noarch.rpm
+yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_8.noarch.rpm
 #import gpg key
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-zfsonlinux
 #install DKMS style packages for correct work ZFS
