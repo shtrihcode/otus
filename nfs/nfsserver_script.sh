@@ -20,4 +20,5 @@ cat <<EOF>> /etc/exports
 EOF
 exportfs -r
 
+#Create check file
 touch /srv/share/nfs/server_file_check
