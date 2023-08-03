@@ -14,7 +14,7 @@ rpm -i nginx-1.*
 # Install Depencies
 yum-builddep /root/rpmbuild/SPECS/nginx.spec
 # Edit nginx.specs
-cp nginx.specs /root/rpmbuild/SPECS/nginx.spec
+cp nginx.spec /root/rpmbuild/SPECS/nginx.spec
 # Build RPM
 rpmbuild -bb /root/rpmbuild/SPECS/nginx.spec
 # Install RPM nginx
