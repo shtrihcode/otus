@@ -1,0 +1,56 @@
+При выборе ядра для загрузки нажать e.
+Попадаем в окно где можно изменить параметры загрузки:
+
+Способ 1. init=/bin/sh (открывает оболочку sh до загрузки системы. Файловая система смонтирована в режим Read) 
+В конце строки начинающейся с linux16 добавляем init=/bin/sh и нажимаем сtrl-x для загрузки в систему
+
+# Перемонтируем файловую систему в Read-Write
+sh-4.2# mount -o remount,rw /
+
+# Проверка монтирования
+sh-4.2# mount | grep root
+/dev/mappers/OtusRoot-root on type xfs (rw,relatime,attr2,inode64,noquota)
+
+# Создание директории
+sh-4.2# mkdir /tmp/test
+
+# Проверка созданной директории
+sh-4.2# ls /tmp/
+ks-script-F9wLg8  test  vboxguest-Module.symvers  yum.log
+
+# Изменение пароля root
+sh-4.2# passwd
+
+
+Способ 2. rd.break (Останавливает процесс запуска до монтирования обычной корневой файловой системы (отсюда необходимость chroot в sysroot))
+В конце строки начинающейся с linux16 добавляем rd.break и нажимаем сtrl-x для загрузки в систему
+
+# Перемонтируем файловую систему в Read-Write
+switch_root/# mount -o remount,rw /sysroot
+
+# Изменение корневого каталога
+switch_root/# chroot /sysroot
+
+# Изменение пароля root
+sh-4.2# passwd root
+New password:
+Retype new password:
+passwd: all authentication tokens updated successfully.
+
+# обновляем параметры SELinux
+sh-4.2# touch /.autorelabel
+
+Способ 3. rw init=/sysroot/bin/sh (Файловая система сразу смонтирована в режим Read-Write)
+В конце строки начинающейся с linux16 заменяем ro на rw init=/sysroot/bin/sh и нажимаем сtrl-x для загрузки в систему
+
+# Изменение корневого каталога
+:/# chroot /sysroot
+
+# Изменение пароля root
+:/# passwd root
+New password:
+Retype new password:
+passwd: all authentication tokens updated successfully.
+
+# обновляем параметры SELinux
+:/# touch /.autorelabel
