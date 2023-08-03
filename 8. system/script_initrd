@@ -1,7 +1,13 @@
 Script started on Thu 03 Aug 2023 05:43:56 PM MSK
+
+# Создаем директорию для своего модуля
 [root@localhost ~]# mkdir /usr/lib/dracut/modules.d/01test
+
+# Копируем готовые скрипты в директорию своего модуля
 [root@localhost ~]# cp /mnt/host/module-setup.sh /usr/lib/dracut/modules.d/01test/
 [root@localhost ~]# cp /mnt/host/module-setup.sh /usr/lib/dracut/modules.d/01test/
+
+# Пересобираем initrd
 [root@localhost ~]# dracut -f -v
 Executing: /sbin/dracut -f -v
 dracut module 'modsign' will not be installed, because command 'keyctl' could not be found!
@@ -105,7 +111,14 @@ Current CPU model 'AuthenticAMD 19-21-00' doesn't match configuration CPU model 
 *** Creating image file done ***
 *** Creating initramfs image file '/boot/initramfs-3.10.0-1160.71.1.el7.x86_64.img' done ***
 
+# Проверка загрузки нашего тестового модуля
 [root@localhost ~]# lsinitrd -m /boot/initramfs-$(uname -r).img | grep test
 test
 
+# Правка файла grub.cfg удаление опций rghb и quiet
 [root@localhost ~]# vi /boot/grub2/grub.cfg
+
+# Перезагрузка
+[root@localhost ~]# reboot
+
+# Скриншот загрузки с пингвином в файле test.png
