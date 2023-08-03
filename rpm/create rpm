@@ -1,0 +1,50 @@
+root@centos ~]# cat /etc/centos-release 
+CentOS Stream release 8
+# Install needed packets
+[root@centos ~]# yum install -y redhat-lsb-core wget rpmdevtools rpm-build createrepo yum-utils gcc
+# Download Nginx packet
+[root@centos ~]# wget https://nginx.org/packages/centos/8/SRPMS/nginx-module-xslt-1.24.0-1.el8.ngx.src.rpm
+# Install Package
+[root@centos ~]# rpm -i nginx-1.24.0-1.el8.ngx.src.rpm
+# Download OpenSSL
+[root@centos ~]# wget https://github.com/openssl/openssl/archive/refs/heads/OpenSSL_1_1_1-stable.zip
+# Extract archive
+[root@centos ~]# unzip OpenSSL_1_1_1-stable.zip
+# Install Depencies
+[root@centos ~]# yum-builddep rpmbuild/SPECS/nginx.spec
+# Edit nginx.specs
+[root@centos ~]# vi ./rpmbuild/SPECS/nginx.spec
+# Add in %build section 
+--with-openssl=/root/openssl-OpenSSL_1_1_1-stable \
+# Build RPM
+[root@centos ~]# rpmbuild -bb rpmbuild/SPECS/nginx.spec
+# Check RPM created
+[root@centos ~]# ll rpmbuild/RPMS/x86_64/
+total 4732
+-rw-r--r-- 1 root root 2265136 Aug  3 09:07 nginx-1.24.0-1.el8.ngx.x86_64.rpm
+-rw-r--r-- 1 root root 2573424 Aug  3 09:07 nginx-debuginfo-1.24.0-1.el8.ngx.x86_64.rpm
+# Install RPM nginx
+[root@centos ~]# yum localinstall -y rpmbuild/RPMS/x86_64/nginx-1.24.0-1.el8.ngx.x86_64.rpm
+Installed:
+  nginx-1:1.24.0-1.el8.ngx.x86_64                                                                                                        
+
+Complete!
+# Start nginx
+[root@centos ~]# systemctl start nginx
+# Verify status nginx
+[root@centos ~]# systemctl status nginx
+● nginx.service - nginx - high performance web server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Thu 2023-08-03 09:11:09 UTC; 5s ago
+     Docs: http://nginx.org/en/docs/
+  Process: 19301 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf (code=exited, status=0/SUCCESS)
+ Main PID: 19302 (nginx)
+    Tasks: 3 (limit: 12396)
+   Memory: 2.9M
+   CGroup: /system.slice/nginx.service
+           ├─19302 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+           ├─19303 nginx: worker process
+           └─19304 nginx: worker process
+
+Aug 03 09:11:09 centos systemd[1]: Starting nginx - high performance web server...
+Aug 03 09:11:09 centos systemd[1]: Started nginx - high performance web server.
