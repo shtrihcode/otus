@@ -1,0 +1,149 @@
+Script started on Thu 03 Aug 2023 04:27:29 PM MSK
+
+# Вывод информации о VG
+[root@localhost ~]# vgs
+  VG     #PV #LV #SN Attr   VSize  VFree
+  centos   1   2   0 wz--n- <7.00g    0 
+
+# Переименование VG из centos в OtusRoot  
+[root@localhost ~]# vgrename centos OtusRoot
+  Volume group "centos" successfully renamed to "OtusRoot"
+
+# Вывод информации о VG
+[root@localhost ~]# vgs
+  VG       #PV #LV #SN Attr   VSize  VFree
+  OtusRoot   1   2   0 wz--n- <7.00g    0 
+
+# Изменение centos на OtusRoot в /etc/fstab
+[root@localhost ~]# vi /etc/fstab
+# /etc/fstab
+# Created by anaconda on Thu Aug  3 15:50:03 2023
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/OtusRoot-root /                       xfs     defaults        0 0
+UUID=41b19db0-88d7-4cda-a984-7b04e786fa29 /boot                   xfs     defaults        0 0
+/dev/mapper/OtusRoot-swap swap                    swap    defaults        0 0
+
+# Изменение centos на OtusRoot в /etc/default/grub
+[root@localhost ~]# vi /etc/default/grub 
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"
+GRUB_DEFAULT=saved
+GRUB_DISABLE_SUBMENU=true
+GRUB_TERMINAL_OUTPUT="console"
+GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=OtusRoot/root rd.lvm.lv=OtusRoot/swap rhgb quiet"
+GRUB_DISABLE_RECOVERY="true"
+
+# Изменение centos на OtusRoot в /boot/grub2/grub.cfg
+[root@localhost ~]# vi /boot/grub2/grub.cfg 
+### BEGIN /etc/grub.d/10_linux ###
+menuentry 'CentOS Linux (3.10.0-1160.71.1.el7.x86_64) 7 (Core)' --class centos --class gnu-linux --class gnu --class os --unrestricted $menuentry_id_option 'gnulinux-3.10.0-1160.71.1.el7.x86_64-advanced-e89d656e-e25d-4116-9084-5e8191bdd967' {
+	load_video
+	set gfxpayload=keep
+	insmod gzio
+	insmod part_msdos
+	insmod xfs
+	set root='hd0,msdos1'
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1 --hint='hd0,msdos1'  41b19db0-88d7-4cda-a984-7b04e786fa29
+	else
+	  search --no-floppy --fs-uuid --set=root 41b19db0-88d7-4cda-a984-7b04e786fa29
+	fi
+	linux16 /vmlinuz-3.10.0-1160.71.1.el7.x86_64 root=/dev/mapper/OtusRoot-root ro crashkernel=auto rd.lvm.lv=OtusRoot/root rd.lvm.lv=OtusRoot/swap rhgb quiet LANG=en_US.UTF-8
+	initrd16 /initramfs-3.10.0-1160.71.1.el7.x86_64.img
+}
+menuentry 'CentOS Linux (0-rescue-1476f827a797eb4b94e1bc65d1db5242) 7 (Core)' --class centos --class gnu-linux --class gnu --class os --unrestricted $menuentry_id_option 'gnulinux-0-rescue-1476f827a797eb4b94e1bc65d1db5242-advanced-e89d656e-e25d-4116-9084-5e8191bdd967' {
+	load_video
+	insmod gzio
+	insmod part_msdos
+	insmod xfs
+	set root='hd0,msdos1'
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1 --hint='hd0,msdos1'  41b19db0-88d7-4cda-a984-7b04e786fa29
+	else
+	  search --no-floppy --fs-uuid --set=root 41b19db0-88d7-4cda-a984-7b04e786fa29
+	fi
+	linux16 /vmlinuz-0-rescue-1476f827a797eb4b94e1bc65d1db5242 root=/dev/mapper/OtusRoot-root ro crashkernel=auto rd.lvm.lv=OtusRoot/root rd.lvm.lv=OtusRoot/swap rhgb quiet
+	initrd16 /initramfs-0-rescue-1476f827a797eb4b94e1bc65d1db5242.img
+}
+### END /etc/grub.d/10_linux ###
+
+# Пересоздание initrd img с новым именем VG
+[root@localhost ~]# mkinitrd -f -v /boot/initramfs-$(uname -r).img $(uname-r)
+Executing: /sbin/dracut -f -v /boot/initramfs-3.10.0-1160.71.1.el7.x86_64.img 3.10.0-1160.71.1.el7.x86_64
+dracut module 'modsign' will not be installed, because command 'keyctl' could not be found!
+dracut module 'busybox' will not be installed, because command 'busybox' could not be found!
+dracut module 'crypt' will not be installed, because command 'cryptsetup' could not be found!
+dracut module 'dmraid' will not be installed, because command 'dmraid' could not be found!
+dracut module 'dmsquash-live-ntfs' will not be installed, because command 'ntfs-3g' could not be found!
+dracut module 'mdraid' will not be installed, because command 'mdadm' could not be found!
+dracut module 'multipath' will not be installed, because command 'multipath' could not be found!
+dracut module 'cifs' will not be installed, because command 'mount.cifs' could not be found!
+dracut module 'iscsi' will not be installed, because command 'iscsistart' could not be found!
+dracut module 'iscsi' will not be installed, because command 'iscsi-iname' could not be found!
+95nfs: Could not find any command of 'rpcbind portmap'!
+dracut module 'modsign' will not be installed, because command 'keyctl' could not be found!
+dracut module 'busybox' will not be installed, because command 'busybox' could not be found!
+dracut module 'crypt' will not be installed, because command 'cryptsetup' could not be found!
+dracut module 'dmraid' will not be installed, because command 'dmraid' could not be found!
+dracut module 'dmsquash-live-ntfs' will not be installed, because command 'ntfs-3g' could not be found!
+dracut module 'mdraid' will not be installed, because command 'mdadm' could not be found!
+dracut module 'multipath' will not be installed, because command 'multipath' could not be found!
+dracut module 'cifs' will not be installed, because command 'mount.cifs' could not be found!
+dracut module 'iscsi' will not be installed, because command 'iscsistart' could not be found!
+dracut module 'iscsi' will not be installed, because command 'iscsi-iname' could not be found!
+95nfs: Could not find any command of 'rpcbind portmap'!
+*** Including module: bash ***
+*** Including module: nss-softokn ***
+*** Including module: i18n ***
+*** Including module: network ***
+*** Including module: ifcfg ***
+*** Including module: drm ***
+*** Including module: plymouth ***
+*** Including module: dm ***
+Skipping udev rule: 64-device-mapper.rules
+Skipping udev rule: 60-persistent-storage-dm.rules
+Skipping udev rule: 55-dm.rules
+*** Including module: kernel-modules ***
+*** Including module: lvm ***
+Skipping udev rule: 64-device-mapper.rules
+Skipping udev rule: 56-lvm.rules
+Skipping udev rule: 60-persistent-storage-lvm.rules
+*** Including module: qemu ***
+*** Including module: resume ***
+*** Including module: rootfs-block ***
+*** Including module: terminfo ***
+*** Including module: udev-rules ***
+Skipping udev rule: 40-redhat-cpu-hotplug.rules
+Skipping udev rule: 91-permissions.rules
+*** Including module: biosdevname ***
+*** Including module: systemd ***
+*** Including module: usrmount ***
+*** Including module: base ***
+*** Including module: fs-lib ***
+*** Including module: microcode_ctl-fw_dir_override ***
+  microcode_ctl module: mangling fw_dir
+    microcode_ctl: reset fw_dir to "/lib/firmware/updates /lib/firmware"
+    microcode_ctl: processing data directory  "/usr/share/microcode_ctl/ucode_with_caveats/intel"...
+intel: model '', path ' intel-ucode/*', kvers ''
+No matching microcode files in ' intel-ucode/*' for CPU model 'AuthenticAMD 19-21-00', skipping
+    microcode_ctl: configuration "intel" is ignored
+    microcode_ctl: processing data directory  "/usr/share/microcode_ctl/ucode_with_caveats/intel-06-2d-07"...
+intel-06-2d-07: model 'GenuineIntel 06-2d-07', path ' intel-ucode/06-2d-07', kvers ''
+Current CPU model 'AuthenticAMD 19-21-00' doesn't match configuration CPU model 'GenuineIntel 06-2d-07', skipping
+    microcode_ctl: configuration "intel-06-2d-07" is ignored
+    microcode_ctl: processing data directory  "/usr/share/microcode_ctl/ucode_with_caveats/intel-06-4e-03"...
+intel-06-4e-03: model 'GenuineIntel 06-4e-03', path ' intel-ucode/06-4e-03', kvers ''
+Current CPU model 'AuthenticAMD 19-21-00' doesn't match configuration CPU model 'GenuineIntel 06-4e-03', skipping
+    microcode_ctl: configuration "intel-06-4e-03" is ignored
+    microcode_ctl: processing data directory  "/usr/share/mic
+
+# Перезагрузка
+reboot
+
+# Вывод информации о VG
+[root@localhost ~]# vgs
+  VG       #PV #LV #SN Attr   VSize  VFree
+  OtusRoot   1   2   0 wz--n- <7.00g    0 
