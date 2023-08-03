@@ -14,7 +14,7 @@ cp -n default.conf /etc/nginx/conf.d/default.conf
 # Reload nginx settings
 nginx -s reload
 # Add new repo
-[root@centos ~]# cat >> /etc/yum.repos.d/otus.repo << EOF
+cat >> /etc/yum.repos.d/otus.repo << EOF
 [otus]
 name=otus-linux
 baseurl=http://localhost/repo
