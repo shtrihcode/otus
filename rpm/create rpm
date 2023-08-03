@@ -3,7 +3,7 @@ CentOS Stream release 8
 # Install needed packets
 [root@centos ~]# yum install -y redhat-lsb-core wget rpmdevtools rpm-build createrepo yum-utils gcc
 # Download Nginx packet
-[root@centos ~]# wget https://nginx.org/packages/centos/8/SRPMS/nginx-module-xslt-1.24.0-1.el8.ngx.src.rpm
+[root@centos ~]# wget https://nginx.org/packages/centos/8/SRPMS/nginx-1.24.0-1.el8.ngx.src.rpm
 # Install Package
 [root@centos ~]# rpm -i nginx-1.24.0-1.el8.ngx.src.rpm
 # Download OpenSSL
