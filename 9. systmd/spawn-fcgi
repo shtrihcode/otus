@@ -1,0 +1,125 @@
+# Установка spawn-fcgi и необходимых для него пакетов
+[root@localhost vagrant]# yum install epel-release -y && yum install spawn-fcgi php php-cli mod_fcgid httpd -y
+
+# Файл конфигурации для сервиса до редактирования
+[root@localhost vagrant]# cat /etc/sysconfig/spawn-fcgi
+# You must set some working options before the "spawn-fcgi" service will work.
+# If SOCKET points to a file, then this file is cleaned up by the init script.
+#
+# See spawn-fcgi(1) for all possible options.
+#
+# Example :
+#SOCKET=/var/run/php-fcgi.sock
+#OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
+
+# Запуск редактора для редактирования файла конфигурации сервиса
+[root@localhost vagrant]# nano /etc/sysconfig/spawn-fcgi
+
+# Просмотр отредактированного файла
+[root@localhost vagrant]# cat /etc/sysconfig/spawn-fcgi
+# You must set some working options before the "spawn-fcgi" service will work.
+# If SOCKET points to a file, then this file is cleaned up by the init script.
+#
+# See spawn-fcgi(1) for all possible options.
+#
+# Example :
+SOCKET=/var/run/php-fcgi.sock
+OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
+
+# Создание юнита для сервиса
+[root@localhost vagrant]# cat >> /etc/systemd/system/spawn-fcgi.service << EOF
+> [Unit]
+> Description=Spawn-fcgi startup service by Otus
+> After=network.target
+> 
+> [Service]
+> Type=simple
+> PIDFile=/var/run/spawn-fcgi.pid
+> EnvironmentFile=/etc/sysconfig/spawn-fcgi
+> ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS
+> KillMode=process
+> 
+> [Install]
+> WantedBy=multi-user.target
+> EOF
+
+# Просмотр созданного юнита для сервиса
+[root@localhost vagrant]# cat /etc/systemd/system/spawn-fcgi.service
+[Unit]
+Description=Spawn-fcgi startup service by Otus
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/spawn-fcgi.pid
+EnvironmentFile=/etc/sysconfig/spawn-fcgi
+ExecStart=/usr/bin/spawn-fcgi -n 
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+[root@localhost vagrant]# nano /etc/systemd/system/spawn-fcgi.service
+[root@localhost vagrant]# cat /etc/systemd/system/spawn-fcgi.service
+[Unit]
+Description=Spawn-fcgi startup service by Otus
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/spawn-fcgi.pid
+EnvironmentFile=/etc/sysconfig/spawn-fcgi
+ExecStart=/usr/bin/spawn-fcgi -n  $OPTIONS
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+# Запуск сервиса spawn-fcgi
+[root@localhost vagrant]# systemctl start spawn-fcgi
+
+# Проверка статуса запущенного сервиса spawn-fcgi
+[root@localhost vagrant]# systemctl status spawn-fcgi
+● spawn-fcgi.service - Spawn-fcgi startup service by Otus
+   Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; vendor preset: disabled)
+   Active: active (running) since Fri 2023-08-04 10:43:23 UTC; 6s ago
+ Main PID: 9237 (php-cgi)
+    Tasks: 33 (limit: 11157)
+   Memory: 19.1M
+   CGroup: /system.slice/spawn-fcgi.service
+           ├─9237 /usr/bin/php-cgi
+           ├─9240 /usr/bin/php-cgi
+           ├─9241 /usr/bin/php-cgi
+           ├─9242 /usr/bin/php-cgi
+           ├─9243 /usr/bin/php-cgi
+           ├─9244 /usr/bin/php-cgi
+           ├─9245 /usr/bin/php-cgi
+           ├─9246 /usr/bin/php-cgi
+           ├─9247 /usr/bin/php-cgi
+           ├─9248 /usr/bin/php-cgi
+           ├─9249 /usr/bin/php-cgi
+           ├─9250 /usr/bin/php-cgi
+           ├─9251 /usr/bin/php-cgi
+           ├─9252 /usr/bin/php-cgi
+           ├─9253 /usr/bin/php-cgi
+           ├─9254 /usr/bin/php-cgi
+           ├─9255 /usr/bin/php-cgi
+           ├─9256 /usr/bin/php-cgi
+           ├─9257 /usr/bin/php-cgi
+           ├─9258 /usr/bin/php-cgi
+           ├─9259 /usr/bin/php-cgi
+           ├─9260 /usr/bin/php-cgi
+           ├─9261 /usr/bin/php-cgi
+           ├─9262 /usr/bin/php-cgi
+           ├─9263 /usr/bin/php-cgi
+           ├─9264 /usr/bin/php-cgi
+           ├─9265 /usr/bin/php-cgi
+           ├─9266 /usr/bin/php-cgi
+           ├─9267 /usr/bin/php-cgi
+           ├─9268 /usr/bin/php-cgi
+           ├─9269 /usr/bin/php-cgi
+           ├─9270 /usr/bin/php-cgi
+           └─9271 /usr/bin/php-cgi
+
+Aug 04 10:43:23 localhost.localdomain systemd[1]: Started Spawn-fcgi startup service by Otus.
+[root@localhost vagrant]# 
+
