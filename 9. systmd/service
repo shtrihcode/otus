@@ -1,0 +1,135 @@
+
+# Создание файла конфигурации для сервиса
+[root@localhost vagrant]# cat >> /etc/sysconfig/watchlog << EOF
+> WORD="ALERT"
+> LOG=/var/log/watchlog.log
+> EOF
+
+# Просмотр созданного файла
+[root@localhost vagrant]# cat /etc/sysconfig/watchlog
+WORD="ALERT"
+LOG=/var/log/watchlog.log
+
+# Создание файла лога из которого будет читать сервис данные
+[root@localhost vagrant]# cat >> /var/log/watchlog.log << EOF
+> test
+> TEST
+> 1234
+> ALERT
+> alert
+> Error
+> ERROR
+> CHECK
+> 'ALERT'
+> EOF
+
+# Просмотр созданного файла
+[root@localhost vagrant]# cat /var/log/watchlog.log 
+test
+TEST
+1234
+ALERT
+alert
+Error
+ERROR
+CHECK
+'ALERT'
+
+# Создание скрипта
+[root@localhost vagrant]# cat >> /opt/watchlog.sh << EOF
+> #!/bin/bash
+> 
+> WORD=$1
+> LOG=$2
+> DATE=`date`
+> if grep $WORD $LOG &> /dev/null
+> then
+> logger "$DATE: I found word, Master!"
+> else
+> exit 0
+> fi
+> EOF
+
+# Проверка созданного скрипта
+[root@localhost vagrant]# cat /opt/watchlog.sh 
+#!/bin/bash
+
+WORD=$1
+LOG=$2
+DATE=`date`
+if grep $WORD $LOG  &> /dev/null
+then
+logger "$DATE: I found word, Master!"
+else
+exit 0
+fi
+
+# Добавление прав на запуск скрипта
+[root@localhost vagrant]# chmod +x /opt/watchlog.sh
+
+# Создание юнита для сервиса
+[root@localhost vagrant]# cat >> /usr/lib/systemd/system/watchlog.service << EOF
+> [Unit]
+> Description=My watchlog service
+> 
+> [Service]
+> Type=oneshot
+> EnvironmentFile=/etc/sysconfig/watchlog
+> ExecStart=/opt/watchdog.sh $WORD $LOG
+> EOF
+
+# Проверка соданного юнита для сервиса
+[root@localhost vagrant]# cat /usr/lib/systemd/system/watchlog.service 
+[Unit]
+Description=My watchlog service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/sysconfig/watchlog
+ExecStart=/opt/watchlog.sh $WORD $LOG
+
+# Создание юнита для таймера
+[root@localhost vagrant]# cat >> /usr/lib/systemd/system/watchlog.timer << EOF
+> [Unit]
+> Description=Run watchlog script every 30 second
+> 
+> [Timer]
+> # Run every 30 second
+> OnUnitActiveSec=30
+> Unit=watchlog.service
+> 
+> [Install]
+> WantedBy=multi-user.target
+> EOF
+
+# Проверка созданного юнита для таймера
+[root@localhost vagrant]# cat /usr/lib/systemd/system/watchlog.timer 
+[Unit]
+Description=Run watchlog script every 30 second
+
+[Timer]
+# Run every 30 second
+OnUnitActiveSec=30
+Unit=watchlog.service
+
+[Install]
+WantedBy=multi-user.target
+
+# Запуск таймера
+[root@localhost vagrant]# systemctl start watchlog.timer
+
+# Проверка результат
+[root@localhost system]# tail -f /var/log/messages
+Aug  4 10:21:18 localhost systemd[1]: Started Run watchlog script every 30 second.
+Aug  4 10:21:18 localhost systemd[1]: Starting My watchlog service...
+Aug  4 10:21:18 localhost root[8777]: Fri Aug  4 10:21:18 UTC 2023: I found word, Master!
+Aug  4 10:21:18 localhost systemd[1]: watchlog.service: Succeeded.
+Aug  4 10:21:18 localhost systemd[1]: Started My watchlog service.
+Aug  4 10:22:32 localhost systemd[1]: Starting My watchlog service...
+Aug  4 10:22:32 localhost root[8783]: Fri Aug  4 10:22:32 UTC 2023: I found word, Master!
+Aug  4 10:22:32 localhost systemd[1]: watchlog.service: Succeeded.
+Aug  4 10:22:32 localhost systemd[1]: Started My watchlog service.
+
+
+
+
