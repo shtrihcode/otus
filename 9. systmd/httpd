@@ -1,0 +1,128 @@
+# Просмотр файла юнита сервиса httpd до редактирования
+[root@localhost vagrant]# cat /usr/lib/systemd/system/httpd.service
+# See httpd.service(8) for more information on using the httpd service.
+
+# Modifying this file in-place is not recommended, because changes
+# will be overwritten during package upgrades.  To customize the
+# behaviour, run "systemctl edit httpd" to create an override unit.
+
+# For example, to pass additional options (such as -D definitions) to
+# the httpd binary at startup, create an override unit (as is done by
+# systemctl edit) and enter the following:
+
+#	[Service]
+#	Environment=OPTIONS=-DMY_DEFINE
+
+[Unit]
+Description=The Apache HTTP Server
+Wants=httpd-init.service
+After=network.target remote-fs.target nss-lookup.target httpd-init.service
+Documentation=man:httpd.service(8)
+
+[Service]
+Type=notify
+Environment=LANG=C
+
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+# Send SIGWINCH for graceful stop
+KillSignal=SIGWINCH
+KillMode=mixed
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
+# Запуск редактора для добавления строки "EnvironmentFile=/etc/sysconfig/httpd-%I"
+[root@localhost vagrant]# nano /usr/lib/systemd/system/httpd.service
+
+# Просмотр файла юнита сервиса httpd после редактирования
+[root@localhost vagrant]# cat /usr/lib/systemd/system/httpd.service
+# See httpd.service(8) for more information on using the httpd service.
+
+# Modifying this file in-place is not recommended, because changes
+# will be overwritten during package upgrades.  To customize the
+# behaviour, run "systemctl edit httpd" to create an override unit.
+
+# For example, to pass additional options (such as -D definitions) to
+# the httpd binary at startup, create an override unit (as is done by
+# systemctl edit) and enter the following:
+
+#	[Service]
+#	Environment=OPTIONS=-DMY_DEFINE
+
+[Unit]
+Description=The Apache HTTP Server
+Wants=httpd-init.service
+After=network.target remote-fs.target nss-lookup.target httpd-init.service
+Documentation=man:httpd.service(8)
+
+[Service]
+Type=notify
+Environment=LANG=C
+EnvironmentFile=/etc/sysconfig/httpd-%I
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+# Send SIGWINCH for graceful stop
+KillSignal=SIGWINCH
+KillMode=mixed
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
+# Создание файла конфигурации для сервиса httpd-1
+[root@localhost vagrant]# cat >> /etc/sysconfig/httpd-1 << EOF
+> OPTIONS=-f conf/1.conf
+> EOF
+
+# Просмотр созданного файла конфигурации для httpd-1
+[root@localhost vagrant]# cat /etc/sysconfig/httpd-1
+OPTIONS=-f conf/1.conf
+
+# Создание файла конфигурации для сервиса httpd-2
+[root@localhost vagrant]# cat >> /etc/sysconfig/httpd-2 << EOF
+OPTIONS=-f conf/2.conf
+EOF
+
+# Просмотр созданного файла конфигурации для httpd-2
+[root@localhost vagrant]# cat /etc/sysconfig/httpd-2
+OPTIONS=-f conf/2.conf
+
+# Просмотр конфигурационных файлов httpd
+[root@localhost vagrant]# ls /etc/httpd/conf
+httpd.conf  magic
+
+# Копирование файла конфигурации по умолчанию httpd для httpd-1 и httpd-2
+[root@localhost vagrant]# cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/1.conf
+[root@localhost vagrant]# cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/2.conf
+
+# Проверка созданных файлов 1 и 2
+[root@localhost vagrant]# ls /etc/httpd/conf
+1.conf  2.conf  httpd.conf  magic
+
+# Запуск редактора для редактирования файла конфигурации для httpd-1 (Изменение Listen на 8088 и добавление PidFile /var/run/httpd-1.pid)
+[root@localhost vagrant]# nano /etc/httpd/conf/1.conf 
+
+# Запуск редактора для редактирования файла конфигурации для httpd-1 (Изменение Listen на 8080 и добавление PidFile /var/run/httpd-2.pid)
+[root@localhost vagrant]# nano /etc/httpd/conf/2.conf
+
+# Проверка портов 8088 и 8080 перед запуском сервисов 1 и 2
+[root@localhost vagrant]# netstat -ano | grep 808
+unix  3      [ ]         STREAM     CONNECTED     22808    /run/dbus/system_bus_socket
+
+# Запуск сервисов httpd-1 и httpd-2
+[root@localhost vagrant]# systemctl start httpd@1
+[root@localhost vagrant]# systemctl start httpd@2
+
+# Проверка портов 8088 и 8080 после запуска сервисов 1 и 2
+[root@localhost vagrant]# netstat -ano | grep 80
+tcp6       0      0 :::8088                 :::*                    LISTEN      off (0.00/0/0)
+tcp6       0      0 :::8080                 :::*                    LISTEN      off (0.00/0/0)
+unix  3      [ ]         STREAM     CONNECTED     22808    /run/dbus/system_bus_socket
+
+# Проверка портов 8088 и 8080 после запуска сервисов 1 и 2
+[root@localhost vagrant]# ss -tnulp | grep httpd
+tcp   LISTEN 0      511                *:8088            *:*    users:(("httpd",pid=9419,fd=4),("httpd",pid=9418,fd=4),("httpd",pid=9417,fd=4),("httpd",pid=9416,fd=4),("httpd",pid=9413,fd=4))
+tcp   LISTEN 0      511                *:8080            *:*    users:(("httpd",pid=9643,fd=4),("httpd",pid=9641,fd=4),("httpd",pid=9640,fd=4),("httpd",pid=9639,fd=4),("httpd",pid=9637,fd=4))
+[root@localhost vagrant]#
