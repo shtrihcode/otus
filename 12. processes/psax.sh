@@ -6,7 +6,7 @@ clk_tck=$(getconf CLK_TCK)
 
 (
 echo "PID|TTY|STAT|TIME|COMMAND";
-for pid in $(ls /proc | grep -E "^[0-9]+$"); do
+for pid in $(ls /proc | grep -E "^[0-9]" | sort -n); do
     if [ -d "/proc/$pid" ]; then
         stat=$(<"/proc/$pid/stat")
 
