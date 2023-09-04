@@ -1,0 +1,48 @@
+[root@localhost ~]# semanage port -l | grep http
+http_cache_port_t              tcp      8080, 8118, 8123, 10001-10010
+http_cache_port_t              udp      3130
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t            tcp      5988
+pegasus_https_port_t           tcp      5989
+[root@localhost ~]# semanage port -a -t http_port_t -p tcp 4881
+[root@localhost ~]# semanage port -l | grep http
+http_cache_port_t              tcp      8080, 8118, 8123, 10001-10010
+http_cache_port_t              udp      3130
+http_port_t                    tcp      4881, 80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t            tcp      5988
+pegasus_https_port_t           tcp      5989
+[root@localhost ~]# systemctl restart nginx
+[root@localhost ~]# systemctl status nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2023-09-04 13:37:36 UTC; 6s ago
+  Process: 10397 ExecReload=/bin/kill -s HUP $MAINPID (code=exited, status=0/SUCCESS)
+  Process: 15890 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 15886 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 15884 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 15891 (nginx)
+    Tasks: 2 (limit: 11157)
+   Memory: 1.8M
+   CGroup: /system.slice/nginx.service
+           ├─15891 nginx: master process /usr/sbin/nginx
+           └─15892 nginx: worker process
+
+Sep 04 13:37:36 localhost.localdomain systemd[1]: Stopped The nginx HTTP and reverse proxy server.
+Sep 04 13:37:36 localhost.localdomain systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Sep 04 13:37:36 localhost.localdomain nginx[15886]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Sep 04 13:37:36 localhost.localdomain nginx[15886]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Sep 04 13:37:36 localhost.localdomain systemd[1]: Started The nginx HTTP and reverse proxy server.
+[root@localhost ~]# curl -L http://127.0.0.1:4881
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css">
+  ......
+[root@selinux ~]# semanage port -d -t http_port_t -p tcp 4881
+[root@selinux ~]# semanage port -l | grep  http_port_t
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t            tcp      5988
+[root@selinux ~]# systemctl restart nginx
+Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details.
+[root@selinux ~]#

@@ -1,0 +1,60 @@
+[root@selinux ~]# systemctl status firewalld
+● firewalld.service - firewalld - dynamic firewall daemon
+   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+     Docs: man:firewalld(1)
+[root@selinux ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@selinux ~]# yum install policycoreutils-python
+[root@selinux ~]# grep 1693833984.483:872 /var/log/audit/audit.log | audit2why
+type=AVC msg=audit(1693833984.483:872): avc:  denied  { name_bind } for  pid=3181 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+	Was caused by:
+	The boolean nis_enabled was set incorrectly. 
+	Description:
+	Allow nis to enabled
+
+	Allow access by executing:
+	# setsebool -P nis_enabled 1
+[root@selinux ~]# setsebool -P nis_enabled on
+[root@selinux ~]# systemctl restart nginx
+[root@selinux ~]# systemctl status nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Mon 2023-09-04 13:32:01 UTC; 6s ago
+  Process: 3394 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 3392 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 3391 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 3396 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─3396 nginx: master process /usr/sbin/nginx
+           └─3398 nginx: worker process
+
+Sep 04 13:32:01 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Sep 04 13:32:01 selinux nginx[3392]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Sep 04 13:32:01 selinux nginx[3392]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Sep 04 13:32:01 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+[root@selinux ~]# curl -L http://127.0.0.1:4881
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css">
+  ......
+
+[root@localhost ~]# getsebool -a | grep nis_enable
+nis_enabled --> on
+
+[root@localhost ~]# setsebool -P nis_enabled off
+[root@localhost ~]# getsebool -a | grep nis_enable
+nis_enabled --> off
+[root@selinux ~]# getsebool -a | grep nis_enable
+nis_enabled --> on
+[root@selinux ~]# 
+[root@selinux ~]# setsebool -P nis_enabled off
+[root@selinux ~]# getsebool -a | grep nis_enable
+nis_enabled --> off
+[root@selinux ~]# systemctl restart nginx
+Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details.
+[root@selinux ~]#
