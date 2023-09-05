@@ -4,7 +4,7 @@
 # sudo apt  install docker.io
 # docker build -t nginx:alpine .
 # docker run -d -p 80:80 nginx:alpine
-# https://hub.docker.com/layers/shtrihcode/otus/nginx/images/sha256-665c74e0ae8d9d18d9bf495b9cb93c45c5e7d8dab680b072ba10196460faf8dc?context=repo
+# https://hub.docker.com/layers/shtrihcode/otus/nginx/images/sha256-90b2685f8f00a0cae2463de18ad9aca3d7c72e5bc474cc272457bffc18716e9e?context=repo
 
 # Определите разницу между контейнером и образом
 # Образ - это шаблон, на основе которого создается контейнер, существует отдельно и не может быть изменен. При запуске контейнерной среды внутри контейнера создается копия файловой системы (docker образа) для чтения и записи. Можно создать неограниченное количество образов Docker из одного шаблона. Каждый раз при изменении начального состояния образа и сохранении существующего состояния создается новый шаблон с дополнительным слоем поверх него.
