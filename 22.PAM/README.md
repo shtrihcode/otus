@@ -1,17 +1,18 @@
 # Домашнее задание 22. Пользователи и группы. Авторизация и аутентификация_РАМ  
 
 ## bash - описание команд и их вывод
-[root@pam ~]# cat /etc/group | grep admin
-admin:x:1003:otusadm,root,vagrant
-[root@pam ~]# 
+### Создаём пользователя otusadm и otus
 vagrant@pam ~]$ sudo -i
 [root@pam ~]# sudo useradd otusadm && sudo useradd otus
+### Задаем пользователям пароли
 [root@pam ~]# echo "Otus2022!" | sudo passwd --stdin otusadm && echo "Otus2022!" | sudo passwd --stdin otus
 Changing password for user otusadm.
 passwd: all authentication tokens updated successfully.
 Changing password for user otus.
 passwd: all authentication tokens updated successfully.
+### Создаём группу admin
 [root@pam ~]# sudo groupadd -f admin
+### Добавляем пользователей vagrant,root и otusadm в группу admin
 [root@pam ~]# usermod otusadm -a -G admin && usermod root -a -G admin && usermod vagrant -a -G admin
 
 

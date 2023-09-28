@@ -3,7 +3,7 @@ MACHINES = {
   # Имя DV "pam"
   :"pam" => {
               # VM box
-              :box_name => "centos/stream8",
+              :box_name => "bento/centos-stream-8",
               #box_version
               :box_version => "20210210.0",
               # Количество ядер CPU
