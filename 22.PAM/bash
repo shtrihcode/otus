@@ -1,0 +1,34 @@
+[root@pam ~]# cat /etc/group | grep admin
+admin:x:1003:otusadm,root,vagrant
+[root@pam ~]# 
+vagrant@pam ~]$ sudo -i
+[root@pam ~]# sudo useradd otusadm && sudo useradd otus
+[root@pam ~]# echo "Otus2022!" | sudo passwd --stdin otusadm && echo "Otus2022!" | sudo passwd --stdin otus
+Changing password for user otusadm.
+passwd: all authentication tokens updated successfully.
+Changing password for user otus.
+passwd: all authentication tokens updated successfully.
+[root@pam ~]# sudo groupadd -f admin
+[root@pam ~]# usermod otusadm -a -G admin && usermod root -a -G admin && usermod vagrant -a -G admin
+
+
+root@iliaotusgui:/home/almadm/vm/pam# ssh otus@192.168.57.10
+The authenticity of host '192.168.57.10 (192.168.57.10)' can't be established.
+ECDSA key fingerprint is SHA256:qEZtQKPRMxOeQk6KltfzHphYOFwYcUx2FYOpF5aFerU.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.57.10' (ECDSA) to the list of known hosts.
+otus@192.168.57.10's password: 
+
+This system is built by the Bento project by Chef Software
+More information can be found at https://github.com/chef/bento
+[otus@pam ~]$ whoami
+otus
+[otus@pam ~]$ exit
+logout
+Connection to 192.168.57.10 closed.
+root@iliaotusgui:/home/almadm/vm/pam# 
+
+[root@pam ~]# cat /etc/group | grep admin
+admin:x:1003:otusadm,root,vagrant
+[root@pam ~]# 
+
