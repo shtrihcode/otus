@@ -1,4 +1,4 @@
 # Домашнее задание по Prometheus  
 
-## Создайте свой кастомный образ nginx на базе alpine - Dockerfile
-## sudo apt  install docker.io
+## Zabbix_EN_30D.png - Английский интерфейс и данные на графиках за 30 дней
+## Zabbix_RU_6M.png - Русский интерфейс и данные на графиках за 6 месяцев
