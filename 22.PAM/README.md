@@ -2,25 +2,32 @@
 
 ## Описание команд и их вывод
 ### Создаём пользователя otusadm и otus
+```
 [vagrant@pam ~]$ sudo -i
 [root@pam ~]# sudo useradd otusadm && sudo useradd otus
+```
 
 ### Задаем пользователям пароли
+```
 [root@pam ~]# echo "Otus2022!" | sudo passwd --stdin otusadm && echo "Otus2022!" | sudo passwd --stdin otus
-
 Changing password for user otusadm.
 passwd: all authentication tokens updated successfully.
-
 Changing password for user otus.
 passwd: all authentication tokens updated successfully.
+```
 
 ### Создаём группу admin
+```
 [root@pam ~]# sudo groupadd -f admin
+```
 
 ### Добавляем пользователей vagrant,root и otusadm в группу admin
+```
 [root@pam ~]# usermod otusadm -a -G admin && usermod root -a -G admin && usermod vagrant -a -G admin
+```
 
 ### Подключаемся с хостовой машины под пользователем otus по SSH
+```
 root@iliaotusgui:/home/almadm/vm/pam# ssh otus@192.168.57.10
 The authenticity of host '192.168.57.10 (192.168.57.10)' can't be established.
 ECDSA key fingerprint is SHA256:qEZtQKPRMxOeQk6KltfzHphYOFwYcUx2FYOpF5aFerU.
@@ -30,19 +37,25 @@ otus@192.168.57.10's password:
 
 This system is built by the Bento project by Chef Software
 More information can be found at https://github.com/chef/bento
+```
 
 ### Подключение прошло удачно, получаем информацию о текущем пользователе и отключаемся 
+```
 [otus@pam ~]$ whoami
 otus
 [otus@pam ~]$ exit
 logout
 Connection to 192.168.57.10 closed.
+```
 
 ### Проверяем, что пользователи root, vagrant и otusadm есть в группе admin
+```
 [root@pam ~]# cat /etc/group | grep admin
 admin:x:1003:otusadm,root,vagrant
+```
 
 ### Создадим файл-скрипт
+```
 [root@pam ~]# nano /usr/local/bin/login.sh
 [root@pam ~]# cat /usr/local/bin/login.sh
 #!/bin/bash
@@ -55,11 +68,15 @@ if [ $(date +%a) = "Thu" ] || [ $(date +%a) = "Fri" ]; then
 	else
     exit 0
     fi
+```
 
 ### Добавим права на исполнение файла
+```
 [root@pam ~]# chmod +x /usr/local/bin/login.sh
+```
 
 ### Укажем в файле /etc/pam.d/sshd модуль pam_exec и скрипт
+```
 [root@pam ~]# nano /etc/pam.d/sshd
 [root@pam ~]# cp /etc/pam.d/sshd /etc/pam.d/sshd.bak
 [root@pam ~]# nano /etc/pam.d/sshd
@@ -83,10 +100,10 @@ session    include      password-auth
 session    include      postlogin
 #scripts
 session required pam_exec.so /usr/local/bin/login.sh
- 
-
+```
 
 ### Попытка подключения по SSH пользователем otus, получаем ошибку (/usr/local/bin/login.sh failed: exit code 1)
+```
 root@iliaotusgui:/home/almadm/otus/22.PAM# ssh otus@192.168.57.10
 otus@192.168.57.10's password: 
 
@@ -95,9 +112,10 @@ More information can be found at https://github.com/chef/bento
 /usr/local/bin/login.sh failed: exit code 1
 Last login: Thu Sep 28 12:08:56 2023 from 192.168.57.1
 Connection to 192.168.57.10 closed.
-
+```
 
 ### Попытка подключения по SSH пользователем otusadm, подключения проходит без ошибок
+```
 root@iliaotusgui:/home/almadm/otus/22.PAM# ssh otusadm@192.168.57.10
 otusadm@192.168.57.10's password: 
 
@@ -106,3 +124,4 @@ More information can be found at https://github.com/chef/bento
 Last failed login: Thu Sep 28 12:00:26 UTC 2023 from 192.168.57.1 on ssh:notty
 There were 4 failed login attempts since the last successful login.
 [otusadm@pam ~]$ 
+```
