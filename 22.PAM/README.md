@@ -1,3 +1,6 @@
+# Домашнее задание 22. Пользователи и группы. Авторизация и аутентификация_РАМ  
+
+## bash - описание команд и их вывод
 [root@pam ~]# cat /etc/group | grep admin
 admin:x:1003:otusadm,root,vagrant
 [root@pam ~]# 
@@ -92,6 +95,6 @@ Last failed login: Thu Sep 28 12:00:26 UTC 2023 from 192.168.57.1 on ssh:notty
 There were 4 failed login attempts since the last successful login.
 [otusadm@pam ~]$ 
 
- 
 
-
+## login.sh - файл-скрипт
+## Vagrantfile, который будет разворачивать виртуальную машину
