@@ -1,6 +1,6 @@
 # Домашнее задание 22. Пользователи и группы. Авторизация и аутентификация_РАМ  
 
-## bash - описание команд и их вывод
+## Описание команд и их вывод
 ### Создаём пользователя otusadm и otus
 [vagrant@pam ~]$ sudo -i
 [root@pam ~]# sudo useradd otusadm && sudo useradd otus
@@ -66,17 +66,17 @@ account    required     pam_sepermit.so
 account    required     pam_nologin.so
 account    include      password-auth
 password   include      password-auth
-#### pam_selinux.so close should be the first session rule
+#pam_selinux.so close should be the first session rule
 session    required     pam_selinux.so close
 session    required     pam_loginuid.so
-#### pam_selinux.so open should only be followed by sessions to be executed in the user context
+#pam_selinux.so open should only be followed by sessions to be executed in the user context
 session    required     pam_selinux.so open env_params
 session    required     pam_namespace.so
 session    optional     pam_keyinit.so force revoke
 session    optional     pam_motd.so
 session    include      password-auth
 session    include      postlogin
-#### Scripts
+#scripts
 session required pam_exec.so /usr/local/bin/login.sh
  
 
