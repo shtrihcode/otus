@@ -1,0 +1,7 @@
+# Вывод списка резервных копий
+[root@client ~]# borg list borg@192.168.56.160:/var/backup/
+etc-2023-11-10_11:09:03              Fri, 2023-11-10 11:09:04 [a0abb208969a10ca2cda9672b6b8212313cca80bee1097ad37aedadd75904276]
+etc-2023-11-10_11:18:42              Fri, 2023-11-10 11:18:42 [a7743a0a24602093c39137b87a667fd03e0f844254106f13da57e09f68a307ac]
+
+# Восстановление файла hostname из резервной копии
+[root@client ~]# borg extract borg@192.168.56.160:/var/backup/::etc-2023-11-10_11:18:42 etc/hostname
