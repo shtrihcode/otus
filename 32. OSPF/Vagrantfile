@@ -1,19 +1,12 @@
-Vagrant.configure(2) do |config| 
-    config.vm.box = "ubuntu/focal64" 
-    config.vm.provider "virtualbox" do |v| 
-    v.memory = 256 
-    v.cpus = 1 
-    end 
-
 MACHINES = {
   :router1 => {
         :box_name => "ubuntu/focal64",
         :vm_name => "router1",
         :net => [
-                   {ip: '10.0.10.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r1-r2"},
-                   {ip: '10.0.12.1', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r1-r3"},
-                   {ip: '192.168.10.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net1"},
-                   {ip: '192.168.56.10', adapter: 5},
+                   ["10.0.10.1", 2, "255.255.255.252", "r1-r2"],
+                   ["10.0.12.1", 3, "255.255.255.252", "r1-r3"],
+                   ["192.168.10.1", 4, "255.255.255.0", "net1"],
+                   ["192.168.56.10", 5],
                 ]
   },
 
@@ -21,10 +14,10 @@ MACHINES = {
         :box_name => "ubuntu/focal64",
         :vm_name => "router2",
         :net => [
-                   {ip: '10.0.10.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r1-r2"},
-                   {ip: '10.0.11.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r2-r3"},
-                   {ip: '192.168.20.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net2"},
-                   {ip: '192.168.56.11', adapter: 5},
+                   ["10.0.10.2", 2, "255.255.255.252", "r1-r2"],
+                   ["10.0.11.2", 3, "255.255.255.252", "r2-r3"],
+                   ["192.168.20.1", 4, "255.255.255.0", "net2"],
+                   ["192.168.56.11", 5],
                 ]
   },
 
@@ -32,10 +25,10 @@ MACHINES = {
         :box_name => "ubuntu/focal64",
         :vm_name => "router3",
         :net => [
-                   {ip: '10.0.11.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r2-r3"},
-                   {ip: '10.0.12.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r1-r3"},
-                   {ip: '192.168.30.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net3"},
-                   {ip: '192.168.56.12', adapter: 5},
+                   ["10.0.11.1", 2, "255.255.255.252", "r2-r3"],
+                   ["10.0.12.2", 3, "255.255.255.252", "r1-r3"],
+                   ["192.168.30.1", 4, "255.255.255.0", "net3"],
+                   ["192.168.56.12", 5],
                 ]
   }
 
@@ -60,8 +53,8 @@ Vagrant.configure("2") do |config|
       end
 
       boxconfig[:net].each do |ipconf|
-        box.vm.network "private_network", ipconf
-      end
+	box.vm.network("private_network", ip: ipconf[0], adapter: ipconf[1], netmask: ipconf[2], virtualbox__intnet: ipconf[3])
+        end
 
      end
   end
