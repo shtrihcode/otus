@@ -3,113 +3,92 @@ Vagrant.configure("2") do |config|
 #inetRouter
 config.vm.define "inetRouter" do |inetrouter|
   inetrouter.vm.box = 'centos/7'
-  inetrouter.vm.disk :disk, size: "15GB", name: "extra_storage1"
   inetrouter.vm.host_name = 'inetRouter'
   inetrouter.vm.network :private_network, ip: '192.168.255.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router-net"
   inetrouter.vm.provider "virtualbox" do |vb|
-
-
-box.vm.provision "shell", inline: <<-SHELL
+    inetrouter.vm.provision "shell", inline: <<-SHELL
           mkdir -p ~root/.ssh
                 cp ~vagrant/.ssh/auth* ~root/.ssh
         SHELL
-box.vm.provision "shell", run: "always", inline: <<-SHELL
+    inetrouter.vm.provision "shell", run: "always", inline: <<-SHELL
 			ip route add 192.168.0.0/28 via 192.168.255.2 dev eth1
 			iptables-restore < /vagrant/knocking-rules
             SHELL
+            inetrouter.vm.provision "ansible" do |ansible|
+              ansible.playbook = "provision.yml"
+              ansible.become = "true"
+           end     
+           
 
-MACHINES = {
-:inetRouter => {
-        :box_name => "centos/7",
-        #:public => {:ip => '10.10.10.1', :adapter => 1},
-        :net => [
-                   {ip: '192.168.255.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router-net"}
-                ]
-  },
-:inetRouter2 => {
-        :box_name => "centos/7",
-        #:public => {:ip => '10.10.10.1', :adapter => 1},
-        :net => [
-                   {ip: '192.168.245.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router2-net"},
-				   {ip: '192.168.11.121', adapter: 3, netmask: "255.255.255.0", virtualbox__intnet: false}
-                ]
-  },
-  :centralRouter => {
-        :box_name => "centos/7",
-        :net => [
-                   {ip: '192.168.255.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router-net"},
-				   {ip: '192.168.245.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "router2-net"},
-                   {ip: '192.168.0.1', adapter: 4, netmask: "255.255.255.240", virtualbox__intnet: "central-net"}
-                ]
-  },
-  
-  :centralServer => {
-        :box_name => "centos/7",
-        :net => [
-                   {ip: '192.168.0.2', adapter: 2, netmask: "255.255.255.240", virtualbox__intnet: "central-net"},
-                   {adapter: 3, auto_config: false, virtualbox__intnet: true},
-                   {adapter: 4, auto_config: false, virtualbox__intnet: true}
-                ]
-  },
-  
-}
-
-Vagrant.configure("2") do |config|
-
-  MACHINES.each do |boxname, boxconfig|
-
-    config.vm.define boxname do |box|
-
-        box.vm.box = boxconfig[:box_name]
-        box.vm.host_name = boxname.to_s
-
-        boxconfig[:net].each do |ipconf|
-          box.vm.network "private_network", ipconf
-        end
-        
-        if boxconfig.key?(:public)
-          box.vm.network "public_network", boxconfig[:public]
-        end
-
-        box.vm.provision "shell", inline: <<-SHELL
+#inetRouter2
+config.vm.define "inetRouter2" do |inetrouter2|
+  inetrouter2.vm.box = 'centos/7'
+  inetrouter2.vm.host_name = 'inetRouter2'
+  inetrouter2.vm.network :private_network, ip: '192.168.245.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router2-net"
+  inetrouter2.vm.network :private_network, ip: '192.168.11.121', adapter: 3, netmask: "255.255.255.0", virtualbox__intnet: false
+  inetrouter2.vm.provider "virtualbox" do |vb|
+    inetrouter2.vm.provision "shell", inline: <<-SHELL
           mkdir -p ~root/.ssh
                 cp ~vagrant/.ssh/auth* ~root/.ssh
         SHELL
-
-         box.vm.provision "ansible" do |ansible|
-           ansible.playbook = "provision.yml"
-           ansible.become = "true"
-        end       
-
-
-        case boxname.to_s
-        when "inetRouter"
-          box.vm.provision "shell", run: "always", inline: <<-SHELL
-			ip route add 192.168.0.0/28 via 192.168.255.2 dev eth1
-			iptables-restore < /vagrant/knocking-rules
-            SHELL
-		when "inetRouter2"
-          box.vm.provision "shell", run: "always", inline: <<-SHELL
+    inetrouter2.vm.provision "shell", run: "always", inline: <<-SHELL
 			ip route add 192.168.0.0/28 via 192.168.245.2 dev eth1
-                        iptables-restore < /vagrant/rules
+      iptables-restore < /vagrant/rules
             SHELL
-        when "centralRouter"
-          box.vm.provision "shell", run: "always", inline: <<-SHELL
-            systemctl restart network
-			ip route del default
-			ip route add default via 192.168.255.1 dev eth1
-			ip route add 192.168.1.0/24 via 192.168.245.1 dev eth2
-			ip route add 192.168.11.0/24 via 192.168.245.1 dev eth2
-			chmod +x /vagrant/knock.sh
-            SHELL
-        when "centralServer"
-          box.vm.provision "shell", run: "always", inline: <<-SHELL
-            systemctl restart network
-			ip route del default
-			ip route add default via 192.168.0.1 dev eth1
-            SHELL
-        end
+            inetrouter2.vm.provision "ansible" do |ansible|
+              ansible.playbook = "provision.yml"
+              ansible.become = "true"
+           end
 
+
+#centralRouter
+config.vm.define "centralRouter" do |centralrouter|
+  centralrouter.vm.box = 'centos/7'
+  centralrouter.vm.host_name = 'centralRouter'
+  centralrouter.vm.network :private_network, ip: '192.168.255.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router-net"
+  centralrouter.vm.network :private_network, ip: '192.168.245.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "router2-net"
+  centralrouter.vm.network :private_network, ip: '192.168.0.1', adapter: 4, netmask: "255.255.255.240", virtualbox__intnet: "central-net"
+  centralrouter.vm.provider "virtualbox" do |vb|
+    centralrouter.vm.provision "shell", inline: <<-SHELL
+          mkdir -p ~root/.ssh
+                cp ~vagrant/.ssh/auth* ~root/.ssh
+        SHELL
+        centralrouter.vm.provision "shell", run: "always", inline: <<-SHELL
+        systemctl restart network
+        ip route del default
+        ip route add default via 192.168.255.1 dev eth1
+        ip route add 192.168.1.0/24 via 192.168.245.1 dev eth2
+        ip route add 192.168.11.0/24 via 192.168.245.1 dev eth2
+        chmod +x /vagrant/knock.sh
+        SHELL
+            centralrouter.vm.provision "ansible" do |ansible|
+              ansible.playbook = "provision.yml"
+              ansible.become = "true"
+           end
+
+
+#centralServer
+config.vm.define "centralServer" do |centralserver|
+  centralserver.vm.box = 'centos/7'
+  centralserver.vm.host_name = 'centralServer'
+  centralserver.vm.network :private_network, ip: '192.168.0.2', adapter: 2, netmask: "255.255.255.240", virtualbox__intnet: "central-net"
+  centralserver.vm.network :private_network, adapter: 3, auto_config: false, virtualbox__intnet: true
+  centralserver.vm.network :private_network, adapter: 4, auto_config: false, virtualbox__intnet: true
+  centralserver.vm.provider "virtualbox" do |vb|
+    centralserver.vm.provision "shell", inline: <<-SHELL
+          mkdir -p ~root/.ssh
+                cp ~vagrant/.ssh/auth* ~root/.ssh
+        SHELL
+        centralserver.vm.provision "shell", run: "always", inline: <<-SHELL
+        systemctl restart network
+        ip route del default
+        ip route add default via 192.168.0.1 dev eth1
+        SHELL
+        centralserver.vm.provision "ansible" do |ansible|
+              ansible.playbook = "provision.yml"
+              ansible.become = "true"
+         end   
+ 
       end
 
   end
