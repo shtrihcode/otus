@@ -1,0 +1,42 @@
+root@iliaotusgui:/openvpn# sudo openvpn --config client.conf
+Fri Nov 17 16:49:11 2023 OpenVPN 2.4.7 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] built on Mar 22 2022
+Fri Nov 17 16:49:11 2023 library versions: OpenSSL 1.1.1f  31 Mar 2020, LZO 2.10
+Fri Nov 17 16:49:11 2023 TCP/UDP: Preserving recently used remote address: [AF_INET]192.168.56.10:1207
+Fri Nov 17 16:49:11 2023 Socket Buffers: R=[212992->212992] S=[212992->212992]
+Fri Nov 17 16:49:11 2023 UDP link local (bound): [AF_INET][undef]:1194
+Fri Nov 17 16:49:11 2023 UDP link remote: [AF_INET]192.168.56.10:1207
+Fri Nov 17 16:49:11 2023 TLS: Initial packet from [AF_INET]192.168.56.10:1207, sid=8b288f1a 0370878f
+Fri Nov 17 16:49:11 2023 VERIFY OK: depth=1, CN=rasvpn
+Fri Nov 17 16:49:11 2023 VERIFY KU OK
+Fri Nov 17 16:49:11 2023 Validating certificate extended key usage
+Fri Nov 17 16:49:11 2023 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+Fri Nov 17 16:49:11 2023 VERIFY EKU OK
+Fri Nov 17 16:49:11 2023 VERIFY OK: depth=0, CN=rasvpn
+Fri Nov 17 16:49:11 2023 Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, 2048 bit RSA
+Fri Nov 17 16:49:11 2023 [rasvpn] Peer Connection Initiated with [AF_INET]192.168.56.10:1207
+Fri Nov 17 16:49:12 2023 SENT CONTROL [rasvpn]: 'PUSH_REQUEST' (status=1)
+Fri Nov 17 16:49:12 2023 PUSH: Received control message: 'PUSH_REPLY,topology net30,ping 10,ping-restart 120,ifconfig 10.10.10.6 10.10.10.5,peer-id 0,cipher AES-256-GCM'
+Fri Nov 17 16:49:12 2023 OPTIONS IMPORT: timers and/or timeouts modified
+Fri Nov 17 16:49:12 2023 OPTIONS IMPORT: --ifconfig/up options modified
+Fri Nov 17 16:49:12 2023 OPTIONS IMPORT: peer-id set
+Fri Nov 17 16:49:12 2023 OPTIONS IMPORT: adjusting link_mtu to 1625
+Fri Nov 17 16:49:12 2023 OPTIONS IMPORT: data channel crypto options modified
+Fri Nov 17 16:49:12 2023 Data Channel: using negotiated cipher 'AES-256-GCM'
+Fri Nov 17 16:49:12 2023 Outgoing Data Channel: Cipher 'AES-256-GCM' initialized with 256 bit key
+Fri Nov 17 16:49:12 2023 Incoming Data Channel: Cipher 'AES-256-GCM' initialized with 256 bit key
+Fri Nov 17 16:49:12 2023 ROUTE_GATEWAY 10.52.0.20/255.255.255.224 IFACE=ens18 HWADDR=9e:1f:57:77:ef:1c
+Fri Nov 17 16:49:12 2023 TUN/TAP device tun0 opened
+Fri Nov 17 16:49:12 2023 TUN/TAP TX queue length set to 100
+Fri Nov 17 16:49:12 2023 /sbin/ip link set dev tun0 up mtu 1500
+Fri Nov 17 16:49:12 2023 /sbin/ip addr add dev tun0 local 10.10.10.6 peer 10.10.10.5
+Fri Nov 17 16:49:12 2023 /sbin/ip route add 10.10.10.0/24 via 10.10.10.5
+Fri Nov 17 16:49:12 2023 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
+Fri Nov 17 16:49:12 2023 Initialization Sequence Completed
+
+
+root@iliaotusgui:/openvpn# ping -c 4 10.10.10.1
+PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
+64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=0.576 ms
+64 bytes from 10.10.10.1: icmp_seq=2 ttl=64 time=0.696 ms
+64 bytes from 10.10.10.1: icmp_seq=3 ttl=64 time=0.721 ms
+64 bytes from 10.10.10.1: icmp_seq=4 ttl=64 time=0.758 ms
