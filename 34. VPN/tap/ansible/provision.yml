@@ -14,9 +14,10 @@
         name:
         - openvpn
         - iperf3
-        - vim 
-    - name: Disable SELinux
-      ansible.posix.selinux:
+        - vim
+
+      #Disable SELinux
+    - selinux:
         state: disabled
 
     - name: reboot
