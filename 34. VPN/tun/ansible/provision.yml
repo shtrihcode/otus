@@ -14,22 +14,22 @@
         name:
         - openvpn
         - iperf3
-        - vim 
-        
-    - name: Disable SELinux
-      ansible.posix.selinux:
+        - vim
+
+    #Disable SELinux
+    - selinux:
         state: disabled
 
     - name: reboot
       ansible.builtin.reboot:
-        reboot_timeout: 3600     
+        reboot_timeout: 3600
 
 - name: ConfigServer
   hosts: server
   become: true
 
   tasks:
-   
+
     - name: copy key
       copy:
         src: static.key
@@ -37,7 +37,7 @@
         owner: root
         group: root
         mode: 644   
-    
+
     - name: copy config
       copy:
         src: server.conf

@@ -1,5 +1,5 @@
 ---
-- name: ConfigcentralRouter
+- name: Config RAS
   hosts: all
   become: true
 
@@ -16,29 +16,15 @@
         - iperf3
         - vim
         - easy-rsa   
-        
-    - name: Disable SELinux
-      ansible.posix.selinux:
+
+      #Disable SELinux
+    - selinux:
         state: disabled
 
     - name: reboot
       ansible.builtin.reboot:
         reboot_timeout: 3600     
 
-- name: ConfigServer
-  hosts: server
-  become: true
-
-  tasks:
-   
-    - name: copy key
-      copy:
-        src: static.key
-        dest: /etc/openvpn/static.key
-        owner: root
-        group: root
-        mode: 644   
-    
     - name: copy config
       copy:
         src: server.conf
@@ -55,33 +41,35 @@
         group: root
         mode: 644   
 
+    - name: EasyRSA - Init PKI
+      shell: |
+        cd /etc/openvpn/
+        /usr/share/easy-rsa/3.0.8/easyrsa init-pki <<-END
+        yes
+        END
+      register: result
 
-- name: ConfigClient
-  hosts: client
-  become: true
+    - name: Generate key and certs
+      shell: |
+        cd /etc/openvpn/
+        echo 'rasvpn' | /usr/share/easy-rsa/3.0.8/easyrsa build-ca nopass
+        echo 'rasvpn' | /usr/share/easy-rsa/3.0.8/easyrsa gen-req server nopass
+        echo 'yes' | /usr/share/easy-rsa/3.0.8/easyrsa sign-req server server
+        /usr/share/easy-rsa/3.0.8/easyrsa gen-dh
+        openvpn --genkey --secret ca.key
 
-  tasks:
+    - name: Generate client key and certs
+      shell: |
+        cd /etc/openvpn/
+        echo 'client' | /usr/share/easy-rsa/3/easyrsa gen-req client nopass
+        echo 'yes' | /usr/share/easy-rsa/3/easyrsa sign-req client client
 
-    - name: copy key
-      copy:
-        src: static.key
-        dest: /etc/openvpn/static.key
-        owner: root
-        group: root
-        mode: 644
+    - name: add iproute
+      shell: |
+        echo 'iroute 10.10.10.0 255.255.255.0' > /etc/openvpn/client/client
 
-    - name: copy config
-      copy:
-        src: client.conf
-        dest: /etc/openvpn/server.conf
-        owner: root
-        group: root
-        mode: 644
-
-    - name: copy servive file
-      copy:
-        src: openvpn@.service
-        dest: /etc/systemd/system/openvpn@.service
-        owner: root
-        group: root
-        mode: 644
+    - name: start openvpn
+      service: 
+        name: openvpn@server
+        state: started
+        enabled: yes
