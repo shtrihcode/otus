@@ -1,0 +1,110 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+
+MACHINES = {
+  :inetRouter => {
+        :box_name => "bento/centos-stream-8",
+        :vm_name => "inetRouter",
+        :net => [
+                   ["", 2, "", "router-net", false],
+                   ["", 3, "", "router-net", false],
+                   ["192.168.56.10", 8],
+                 ]        
+  },
+  :centralRouter => {
+        :box_name => "bento/centos-stream-8",
+        :vm_name => "centralRouter",
+        :net => [
+                   ["", 2, "", "router-net", false],
+                   ["", 3, "", "router-net", false],
+                   ["192.168.255.9", 6, "255.255.255.252", "office1-central"],
+                   ["192.168.56.11", 8],
+                 ]
+  },
+
+  :office1Router => {
+        :box_name => "bento/centos-stream-8",
+        :vm_name => "office1Router",
+        :net => [
+                   ["", 3, "", "vlan1", false],
+                   ["", 4, "", "vlan1", false],
+                   ["", 5, "", "vlan2", false],
+                   ["", 6, "", "vlan2", false],
+                   ["192.168.255.10", 2, "255.255.255.252", "office1-central"],
+                   ["192.168.56.20", 8],
+                ]
+  },
+
+  :testClient1 => {
+        :box_name => "bento/centos-stream-8",
+        :vm_name => "testClient1",
+        :net => [
+                   ["", 2, "", "testLAN", false],
+                   ["192.168.56.21", 8],
+                ]
+  },
+
+  :testServer1 => {
+        :box_name => "bento/centos-stream-8",
+        :vm_name => "testServer1",
+        :net => [
+                   ["", 2, "", "testLAN", false],
+                   ["192.168.56.22", 8],
+            ]
+  },
+
+  :testClient2 => {
+        :box_name => "ubuntu/focal64",
+        :box_version => "20220411.2.0",
+        :vm_name => "testClient2",
+        :net => [
+                   ["", 2, "", "testLAN", false],
+                   ["192.168.56.31", 8],
+                ]
+  },
+
+  :testServer2 => {
+        :box_name => "ubuntu/focal64",
+        :box_version => "20220411.2.0",
+        :vm_name => "testServer2",
+        :net => [
+                   ["", 2, "", "testLAN", false],
+                   ["192.168.56.32", 8],
+                ]
+  },
+
+}
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+    
+    config.vm.define boxname do |box|
+   
+      box.vm.box = boxconfig[:box_name]
+      box.vm.host_name = boxconfig[:vm_name]
+      box.vm.box_version = boxconfig[:box_version]
+
+      config.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+       end
+
+      boxconfig[:net].each do |ipconf|
+        box.vm.network("private_network", ip: ipconf[0], adapter: ipconf[1], netmask: ipconf[2], virtualbox__intnet: ipconf[3], auto_config: ipconf[4])
+        end
+      
+      box.vm.provision "shell", inline: <<-SHELL
+        mkdir -p ~root/.ssh
+        cp ~vagrant/.ssh/auth* ~root/.ssh
+      SHELL
+
+      box.vm.provision "ansible" do |ansible|
+      	ansible.playbook = "provisioning/playbook.yml"
+        ansible.inventory_path = "provisioning/hosts"
+      	ansible.become = "true"
+      end
+
+    end
+  end
+end
