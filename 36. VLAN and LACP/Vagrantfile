@@ -1,110 +1,155 @@
-# -*- mode: ruby -*-
-# vim: set ft=ruby :
-
-MACHINES = {
-  :inetRouter => {
-        :box_name => "bento/centos-stream-8",
-        :vm_name => "inetRouter",
-        :net => [
-                   ["", 2, "", "router-net", false],
-                   ["", 3, "", "router-net", false],
-                   ["192.168.56.10", 8],
-                 ]        
-  },
-  :centralRouter => {
-        :box_name => "bento/centos-stream-8",
-        :vm_name => "centralRouter",
-        :net => [
-                   ["", 2, "", "router-net", false],
-                   ["", 3, "", "router-net", false],
-                   ["192.168.255.9", 6, "255.255.255.252", "office1-central"],
-                   ["192.168.56.11", 8],
-                 ]
-  },
-
-  :office1Router => {
-        :box_name => "bento/centos-stream-8",
-        :vm_name => "office1Router",
-        :net => [
-                   ["", 3, "", "vlan1", false],
-                   ["", 4, "", "vlan1", false],
-                   ["", 5, "", "vlan2", false],
-                   ["", 6, "", "vlan2", false],
-                   ["192.168.255.10", 2, "255.255.255.252", "office1-central"],
-                   ["192.168.56.20", 8],
-                ]
-  },
-
-  :testClient1 => {
-        :box_name => "bento/centos-stream-8",
-        :vm_name => "testClient1",
-        :net => [
-                   ["", 2, "", "testLAN", false],
-                   ["192.168.56.21", 8],
-                ]
-  },
-
-  :testServer1 => {
-        :box_name => "bento/centos-stream-8",
-        :vm_name => "testServer1",
-        :net => [
-                   ["", 2, "", "testLAN", false],
-                   ["192.168.56.22", 8],
-            ]
-  },
-
-  :testClient2 => {
-        :box_name => "ubuntu/focal64",
-        :box_version => "20220411.2.0",
-        :vm_name => "testClient2",
-        :net => [
-                   ["", 2, "", "testLAN", false],
-                   ["192.168.56.31", 8],
-                ]
-  },
-
-  :testServer2 => {
-        :box_name => "ubuntu/focal64",
-        :box_version => "20220411.2.0",
-        :vm_name => "testServer2",
-        :net => [
-                   ["", 2, "", "testLAN", false],
-                   ["192.168.56.32", 8],
-                ]
-  },
-
-}
-
 Vagrant.configure("2") do |config|
-
-  MACHINES.each do |boxname, boxconfig|
+    config.vm.provider "virtualbox" do |v| 
+    v.memory = 1024
+    v.cpus = 2 
+    end 
     
-    config.vm.define boxname do |box|
+       #inetRouter
+    config.vm.define "inetRouter" do |inetrouter|
+    config.vm.box = "bento/centos-stream-8"
+    inetrouter.vm.host_name = 'inetRouter'
+    inetrouter.vm.network :private_network, adapter: 2, auto_config: false, virtualbox__intnet: "router-net"
+    inetrouter.vm.network :private_network, adapter: 3, auto_config: false, virtualbox__intnet: "router-net"
+    inetrouter.vm.network :private_network, ip: '192.168.56.10', adapter: 8
+    inetrouter.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
    
-      box.vm.box = boxconfig[:box_name]
-      box.vm.host_name = boxconfig[:vm_name]
-      box.vm.box_version = boxconfig[:box_version]
-
-      config.vm.provider "virtualbox" do |v|
-        v.memory = 1024
-        v.cpus = 2
+         inetrouter.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
        end
-
-      boxconfig[:net].each do |ipconf|
-        box.vm.network("private_network", ip: ipconf[0], adapter: ipconf[1], netmask: ipconf[2], virtualbox__intnet: ipconf[3], auto_config: ipconf[4])
-        end
-      
-      box.vm.provision "shell", inline: <<-SHELL
-        mkdir -p ~root/.ssh
-        cp ~vagrant/.ssh/auth* ~root/.ssh
-      SHELL
-
-      box.vm.provision "ansible" do |ansible|
-      	ansible.playbook = "provisioning/playbook.yml"
-        ansible.inventory_path = "provisioning/hosts"
-      	ansible.become = "true"
-      end
-
+       
+       
+       
+       #centralRouter
+    config.vm.define "centralRouter" do |centralrouter|
+    config.vm.box = "bento/centos-stream-8"
+    centralrouter.vm.host_name = 'centralRouter'
+    centralrouter.vm.network :private_network, adapter: 2, auto_config: false, virtualbox__intnet: "router-net"
+    centralrouter.vm.network :private_network, adapter: 3, auto_config: false, virtualbox__intnet: "router-net"
+    centralrouter.vm.network :private_network, ip: '192.168.255.9', adapter: 6, netmask: "255.255.255.252", virtualbox__intnet: "office1-central"
+    centralrouter.vm.network :private_network, ip: '192.168.56.11', adapter: 8
+    centralrouter.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
+   
+         centralrouter.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
+       end
+    
+    
+    
+       #office1Router
+    config.vm.define "office1Router" do |office1router|
+    config.vm.box = "bento/centos-stream-8"
+    office1router.vm.host_name = 'office1Router'
+    office1router.vm.network :private_network, ip: '192.168.255.10', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "office1-central"
+    office1router.vm.network :private_network, adapter: 3, auto_config: false, virtualbox__intnet: "vlan1"
+    office1router.vm.network :private_network, adapter: 4, auto_config: false, virtualbox__intnet: "vlan1"
+    office1router.vm.network :private_network, adapter: 5, auto_config: false, virtualbox__intnet: "vlan1"
+    office1router.vm.network :private_network, adapter: 6, auto_config: false, virtualbox__intnet: "vlan1"
+    office1router.vm.network :private_network, ip: '192.168.56.20', adapter: 8
+    office1router.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
+   
+         office1router.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
+       end
+       
+       
+       #testClient1
+    config.vm.define "testClient1" do |testclient1|
+    config.vm.box = "bento/centos-stream-8"
+    testclient1.vm.host_name = 'testClient1'
+    testclient1.vm.network :private_network, adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testclient1.vm.network :private_network, ip: '192.168.56.21', adapter: 8
+    testclient1.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
+   
+         testclient1.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
+       end
+    
+    
+        #testServer1
+    config.vm.define "testServer1" do |testserver1|
+    config.vm.box = "bento/centos-stream-8"
+    testserver1.vm.host_name = 'testServer1'
+    testserver1.vm.network :private_network, adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testserver1.vm.network :private_network, ip: '192.168.56.22', adapter: 8
+    testserver1.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
+   
+         testserver1.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
+       end
+    
+    
+        #testClient2
+    config.vm.define "testClient2" do |testclient2|
+    config.vm.box = "ubuntu/focal64"
+    testclient2.vm.host_name = 'testClient2'
+    testclient2.vm.network :private_network, adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testclient2.vm.network :private_network, ip: '192.168.56.31', adapter: 8
+    testclient2.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
+   
+         testclient2.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
+       end
+    
+    
+        #testServer2
+    config.vm.define "testServer2" do |testserver2|
+    config.vm.box = "ubuntu/focal64"
+    testserver2.vm.host_name = 'testServer2'
+    testserver2.vm.network :private_network, adapter: 2, auto_config: false, virtualbox__intnet: "testLAN"
+    testserver2.vm.network :private_network, ip: '192.168.56.32', adapter: 8
+    testserver2.vm.provision "shell", inline: <<-SHELL
+           mkdir -p ~root/.ssh
+           cp ~vagrant/.ssh/auth* ~root/.ssh
+         SHELL
+   
+         testserver2.vm.provision "ansible" do |ansible|
+             ansible.playbook = "provisioning/playbook.yml"
+           ansible.inventory_path = "provisioning/hosts"
+             ansible.become = "true"
+         end
+   
+       end
     end
-  end
-end
+   
