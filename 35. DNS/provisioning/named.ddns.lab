@@ -12,5 +12,5 @@ $ORIGIN ddns.lab.
                 IN      NS      ns02.dns.lab.
 
 ; DNS Servers
-ns01            IN      A       192.168.50.10
-ns02            IN      A       192.168.50.11
+ns01            IN      A       192.168.56.10
+ns02            IN      A       192.168.56.11
