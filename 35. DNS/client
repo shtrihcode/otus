@@ -1,0 +1,86 @@
+Enjoy![vagrant@client ~]$ sudo -i
+[root@client ~]# dig 192.168.56.10 web1.dns.lab
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.15 <<>> 192.168.56.10 web1.dns.lab
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 34638
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;192.168.56.10.			IN	A
+
+;; AUTHORITY SECTION:
+.			10800	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2023112100 1800 900 604800 86400
+
+;; Query time: 420 msec
+;; SERVER: 192.168.56.10#53(192.168.56.10)
+;; WHEN: Tue Nov 21 10:03:34 UTC 2023
+;; MSG SIZE  rcvd: 117
+
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 44301
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 3
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;web1.dns.lab.			IN	A
+
+;; ANSWER SECTION:
+web1.dns.lab.		3600	IN	A	192.168.56.15
+
+;; AUTHORITY SECTION:
+dns.lab.		3600	IN	NS	ns02.dns.lab.
+dns.lab.		3600	IN	NS	ns01.dns.lab.
+
+;; ADDITIONAL SECTION:
+ns01.dns.lab.		3600	IN	A	192.168.56.10
+ns02.dns.lab.		3600	IN	A	192.168.56.11
+
+;; Query time: 0 msec
+;; SERVER: 192.168.56.10#53(192.168.56.10)
+;; WHEN: Tue Nov 21 10:03:34 UTC 2023
+;; MSG SIZE  rcvd: 127
+
+[root@client ~]# dig 192.168.56.11 web2.dns.lab
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.15 <<>> 192.168.56.11 web2.dns.lab
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 5862
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;192.168.56.11.			IN	A
+
+;; AUTHORITY SECTION:
+.			10800	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2023112100 1800 900 604800 86400
+
+;; Query time: 154 msec
+;; SERVER: 192.168.56.10#53(192.168.56.10)
+;; WHEN: Tue Nov 21 10:05:09 UTC 2023
+;; MSG SIZE  rcvd: 117
+
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 32164
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;web2.dns.lab.			IN	A
+
+;; AUTHORITY SECTION:
+dns.lab.		600	IN	SOA	ns01.dns.lab. root.dns.lab. 2711201407 3600 600 86400 600
+
+;; Query time: 0 msec
+;; SERVER: 192.168.56.10#53(192.168.56.10)
+;; WHEN: Tue Nov 21 10:05:09 UTC 2023
+;; MSG SIZE  rcvd: 87
+
+[root@client ~]# 
