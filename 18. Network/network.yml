@@ -1,9 +1,0 @@
----
-- name: Restart network service
-  hosts: all
-  become: yes
-  tasks:
-    - name: Restart network
-      service: 
-        name: network
-        state: restarted
