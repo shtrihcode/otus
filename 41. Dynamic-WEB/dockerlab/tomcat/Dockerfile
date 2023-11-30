@@ -1,5 +1,0 @@
-FROM tomcat:8.5.5-jre8
-
-EXPOSE 5000
-
-WORKDIR /app
