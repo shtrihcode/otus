@@ -1,7 +1,8 @@
-hosts: DynamicWeb # имя хоста, который мы создадим Vagrant`om
-become: yes # Установка Docker через sudo
-gather_facts: false
-tasks: # Перечисляем задачи которые выполнит наш playbook
+---
+- hosts: DynamicWeb # имя хоста, который мы создадим Vagrant`om
+  become: yes # Установка Docker через sudo
+  gather_facts: false
+  tasks: # Перечисляем задачи которые выполнит наш playbook
   - name: Install docker packages # устанавливаем пакеты необходимые для установки докера
     become: yes
     apt:
@@ -52,6 +53,7 @@ tasks: # Перечисляем задачи которые выполнит н�
       update_cache: yes
     tags:
       - docker
+
   - name: Add remote "vagrant" user to "docker" group
     become: yes
     user:
@@ -59,7 +61,8 @@ tasks: # Перечисляем задачи которые выполнит н�
       group: "docker"
       append: yes
     tags:
-  - docker - name: Install docker-compose 
+      - docker 
+  - name: Install docker-compose 
     become: yes
     get_url:
       url : https://github.com/docker/compose/releases/download/1.25.1-rc1/docker-compose-Linux-x86_64

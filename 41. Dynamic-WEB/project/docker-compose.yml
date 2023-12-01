@@ -1,15 +1,22 @@
 version: '3.3'
+networks:
+  app-network:
+    driver: bridge
+
 services:
+# Для того чтобы объединить наши приложения, создадим сеть и будем добавлять каждый контейнер в неё:
   database:
-    image: mysql:8.0 # используем готовый образ mysql от разработчиков
+    image: mysql:8.0
     container_name: database
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME} # Имя и пароль базы данных будут задаваться в отдельном .env файле
+      MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
-      - ./dbdata:/var/lib/mysql # Чтобы данные базы не пропали при остановке/удалении контейнера, будем сохранять их на хост-машине
+      - ./dbdata:/var/lib/mysql
     command: '--default-authentication-plugin=mysql_native_password'
+    networks:
+      - app-network
   
   wordpress:
     image: wordpress:5.1.1-fpm-alpine # официальный образ от разработчиков
