@@ -34,6 +34,10 @@ Vagrant.configure("2") do |config|
 
           box.vm.provision :shell do |s|
              s.inline = 'mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh'
+             yum install https://downloads.percona.com/downloads/Percona-Server-5.7/Percona-Server-5.7.44-48/binary/redhat/7/x86_64/Percona-Server-shared-compat-57-5.7.44-48.1.el7.x86_64.rpm -y
+             yum install https://downloads.percona.com/downloads/Percona-Server-5.7/Percona-Server-5.7.44-48/binary/redhat/7/x86_64/Percona-Server-shared-57-5.7.44-48.1.el7.x86_64.rpm -y
+             yum install https://downloads.percona.com/downloads/Percona-Server-5.7/Percona-Server-5.7.44-48/binary/redhat/7/x86_64/Percona-Server-client-57-5.7.44-48.1.el7.x86_64.rpm -y
+             yum install https://downloads.percona.com/downloads/Percona-Server-5.7/Percona-Server-5.7.44-48/binary/redhat/7/x86_64/Percona-Server-server-57-5.7.44-48.1.el7.x86_64.rpm -y
           end
 
       end
