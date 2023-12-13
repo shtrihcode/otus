@@ -3,7 +3,7 @@ MACHINES = {
   # Имя DV "pam"
   :node1 => {
         # VM box
-        :box_name => "centos/stream8",
+        :box_name => "bento/centos-stream-8",
         # Имя VM
         :vm_name => "node1",
         # Количество ядер CPU
@@ -14,7 +14,7 @@ MACHINES = {
         :ip => "192.168.57.11",
   },
   :node2 => {
-        :box_name => "centos/stream8",
+        :box_name => "bento/centos-stream-8",
         :vm_name => "node2",
         :cpus => 2,
         :memory => 1024,
@@ -22,7 +22,7 @@ MACHINES = {
 
   },
   :barman => {
-        :box_name => "centos/stream8",
+        :box_name => "bento/centos-stream-8",
         :vm_name => "barman",
         :cpus => 1,
         :memory => 1024,
