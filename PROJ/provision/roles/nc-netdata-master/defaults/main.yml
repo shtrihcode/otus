@@ -12,7 +12,7 @@ netdata_pre_reqs:
   - cronie
   - curl
   - gcc
-  - git2u
+  - git
   - iproute
   - libmnl-devel
   - libuuid-devel
@@ -29,6 +29,8 @@ netdata_pre_reqs:
   - uuid-devel
   - libuv-devel
   - zlib-devel
+  - cmake
+  - ninja-build
 netdata_stream_master_node: "mon:19999"
 
 clients:

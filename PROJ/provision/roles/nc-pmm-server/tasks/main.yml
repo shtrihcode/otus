@@ -29,7 +29,10 @@
 
 - name: install docker module for python
   pip:
-    name: docker
+    name:
+      - requests==2.24.0
+      - docker==4.3.0
+    state: present
 
 - name: create pmm-data container
   docker_container:
@@ -50,4 +53,3 @@
      - "443:443"
     state: started
     restart: yes
-

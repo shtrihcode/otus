@@ -16,17 +16,14 @@
     name: "{{ netdata_pre_reqs }}"
     state: present
 
-- name: cloning {{ netdata_git_repo }} to {{ netdata_source_dir }}
-  git:
-    repo: "{{ netdata_git_repo }}"
-    dest: "{{ netdata_source_dir }}"
-    depth: 1
+- name: Download install scrip Netdata
+  get_url:
+    url: https://get.netdata.cloud/kickstart.sh
+    dest: /tmp/netdata-kickstart.sh
+    validate_certs: no
 
 - name: install netdata
-  command: "{{ netdata_installer }} --dont-wait"
-  args:
-    chdir: "{{ netdata_source_dir }}"
-    creates: /usr/sbin/netdata
+  command: "sh /tmp/netdata-kickstart.sh --no-updates --stable-channel --disable-telemetry"
 
 - name:  copy stream.conf
   template:

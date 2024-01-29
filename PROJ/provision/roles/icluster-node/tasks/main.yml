@@ -11,6 +11,12 @@
     name: mariadb-libs
     state: removed
 
+- name: Import a key from url
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+
+
 - name: install MySQL
   yum:
     name: mysql-community-server
@@ -20,8 +26,9 @@
 - name: install PyMySQL from pip
   pip:
     name:
-      - PyMySQL
-      - cryptography
+      - PyMySQL==0.10.1
+      - cffi==1.14.3
+      - cryptography==3.2.0
     state: present
 
 - name: configure mysql
