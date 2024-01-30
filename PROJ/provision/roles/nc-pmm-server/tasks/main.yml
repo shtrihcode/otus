@@ -27,29 +27,8 @@
 - name: force all notified handlers to run at this point
   meta: flush_handlers
 
-- name: install docker module for python
-  pip:
-    name:
-      - requests==2.24.0
-      - docker==4.3.0
-    state: present
-
 - name: create pmm-data container
-  docker_container:
-    name: pmm-data
-    image: "percona/pmm-server:2"
-    command: "/bin/true"
-    volumes:
-      - /srv
+  command: docker create --volume /srv --name pmm-data percona/pmm-server:2 /bin/true
 
 - name: create pmm-server container
-  docker_container:
-    name: pmm-server
-    image: "percona/pmm-server:2"
-    volumes_from:
-      - pmm-data
-    ports:
-     - "80:80"
-     - "443:443"
-    state: started
-    restart: yes
+  command: docker run --detach --restart always --publish 443:443 --volumes-from pmm-data --name pmm-server percona/pmm-server:2

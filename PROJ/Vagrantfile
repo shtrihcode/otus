@@ -76,11 +76,11 @@ MACHINES = {
 
 hosts_file="127.0.0.1\tlocalhost\n"
 
-#MACHINES.each do |hostname,config|  
-#  config[:net].each do |ip|
-#      hosts_file=hosts_file+ip[:ip]+"\t"+hostname.to_s+"\n"
-#  end
-#end
+MACHINES.each do |hostname,config|  
+  config[:net].each do |ip|
+      hosts_file=hosts_file+ip[0]+"\t"+hostname.to_s+"\n"
+  end
+end
 
 Vagrant.configure("2") do |config|
   MACHINES.each do |boxname, boxconfig|
