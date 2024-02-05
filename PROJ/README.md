@@ -82,10 +82,13 @@ http://nc.example.org
 Проверка работы балансировщиков:  
 
 http://nc.example.org:8080/stats
+username: 'stat'
+password: 'statpass'
 
 Для того чтобы посмотреть состояние innodb кластера, на оба бэкенда добавляются bash алиасы для пользователя root:   
 
 ```console
+mysqlsh icadmin@sqlnode1:3306 -- cluster status
 [root@backend1 ~]# check-cluster 
 Please provide the password for 'icadmin@sqlnode1:3306': ********
 {
