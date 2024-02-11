@@ -1,8 +1,0 @@
----
-# handlers file for provision/roles/nc-redis
-
-- name: restart redis-server
-  systemd:
-    name: redis
-    state: restarted
-

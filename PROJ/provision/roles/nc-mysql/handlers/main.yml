@@ -1,8 +1,0 @@
----
-# handlers file for provision/roles/nc-mysql
-
-- name: restart mysql
-  systemd:
-    name: mysqld
-    state: restarted
-

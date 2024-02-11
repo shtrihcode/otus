@@ -1,7 +1,0 @@
----
-# handlers file for provision/roles/nc-rsyslog-server
-
-- name: "restart rsyslog"
-  systemd:
-    name: "rsyslog"
-    state: "restarted"

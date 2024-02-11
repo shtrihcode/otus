@@ -1,9 +1,0 @@
----
-# handlers file for provision/roles/nc-pmm-server
-
-- name: start docker
-  service:
-    name: docker
-    state: started
-    enabled: yes
-

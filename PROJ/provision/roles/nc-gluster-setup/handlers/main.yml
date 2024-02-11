@@ -1,9 +1,0 @@
----
-# handlers file for provision/roles/nc-gluster-setup
-
-- name: start glusterd
-  systemd:
-    name: glusterd
-    state: started
-    enabled: yes
-

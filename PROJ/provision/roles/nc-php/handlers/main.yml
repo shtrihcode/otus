@@ -1,8 +1,0 @@
----
-# handlers file for provision/roles/nc-php
-
-- name: restart php-fpm
-  systemd:
-    name: php-fpm
-    state: restarted
-

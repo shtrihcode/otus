@@ -1,9 +1,0 @@
----
-# handlers file for provision/roles/nc-os
-
-- name: restart ntp
-  service:
-    name: "ntpd"
-    state: restarted
-    enabled: yes
-

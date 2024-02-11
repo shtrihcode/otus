@@ -1,9 +1,0 @@
----
-# handlers file for provision/roles/nc-netdata-master
-
-- name: restart netdata
-  service:
-    name: "netdata"
-    state: "restarted"
-    enabled: true
-    sleep: 10

@@ -1,4 +1,0 @@
----
-# defaults file for provision/roles/nc-ssl
-
-fqdn: 'nc.example.org'
